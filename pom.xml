@@ -53,7 +53,7 @@
             <plugin>
                 <groupId>in.virit.vwscdn</groupId>
                 <artifactId>vwscdn-maven-plugin</artifactId>
-                <version>1.1.2</version>
+                <version>1.1.5</version>
                 <executions>
                     <execution>
                         <goals>
