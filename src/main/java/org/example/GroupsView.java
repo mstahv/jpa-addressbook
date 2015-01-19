@@ -19,10 +19,6 @@ import org.vaadin.viritin.label.Header;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
-/**
- *
- * @author matti ät vaadin.com
- */
 @CDIView("groups")
 public class GroupsView extends CssLayout implements View {
 

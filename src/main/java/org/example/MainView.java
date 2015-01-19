@@ -20,10 +20,6 @@ import org.vaadin.viritin.label.Header;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
-/**
- *
- * @author matti ät vaadin.com
- */
 @CDIView("")
 @ViewMenuItem(order = ViewMenuItem.BEGINNING, icon = FontAwesome.USER)
 public class MainView extends CssLayout implements View {
