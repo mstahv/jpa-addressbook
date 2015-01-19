@@ -72,11 +72,21 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </repository>
         <repository>
             <id>vaadin-addons</id>
             <url>http://maven.vaadin.com/vaadin-addons</url>
         </repository>
     </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>viritin</id>
+            <url>http://virit.in/maven2</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>
