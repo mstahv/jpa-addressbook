@@ -1,6 +1,7 @@
 package org.example;
 
 import com.vaadin.cdi.CDIView;
+import com.vaadin.cdi.UIScoped;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -20,6 +21,7 @@ import org.vaadin.viritin.label.Header;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
+@UIScoped
 @CDIView("groups")
 public class GroupsView extends CssLayout implements View {
 
