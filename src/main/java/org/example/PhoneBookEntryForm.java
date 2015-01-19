@@ -51,10 +51,6 @@ public class PhoneBookEntryForm extends AbstractForm<PhoneBookEntry> {
     @Inject
     PhoneBookService service;
 
-    public PhoneBookEntryForm() {
-        setEagerValidation(true);
-    }
-
     @Override
     protected Component createContent() {
         groups.setOptions(service.getGroups());

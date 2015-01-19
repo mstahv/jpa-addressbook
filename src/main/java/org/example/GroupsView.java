@@ -8,6 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.example.backend.PhoneBookGroup;
 import org.example.backend.PhoneBookService;
@@ -97,9 +98,9 @@ public class GroupsView extends CssLayout implements View {
         // refresh list
         listEntries();
     }
-
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
+    
+    @PostConstruct
+    void init() {
         // Add some event listners, e.g. to hook filter input to actually 
         // filter the displayed entries
         filter.addTextChangeListener(e -> {
@@ -109,7 +110,6 @@ public class GroupsView extends CssLayout implements View {
         form.setSavedHandler(this::entrySaved);
         form.setResetHandler(this::entryEditCanceled);
 
-        removeAllComponents();
         addComponents(
                 new MVerticalLayout(
                         new Header("PhoneBook"),
@@ -120,7 +120,12 @@ public class GroupsView extends CssLayout implements View {
 
         // List all entries and select first entry in the list
         listEntries();
-        entryList.setValue(entryList.firstItemId());
+        entryList.setValue(entryList.firstItemId());        
+    }
+
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+
     }
 
 }

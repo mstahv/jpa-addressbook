@@ -8,6 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.example.backend.PhoneBookEntry;
 import org.example.backend.PhoneBookService;
@@ -104,10 +105,10 @@ public class MainView extends CssLayout implements View {
         // refresh list
         listEntries();
     }
-
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
-        service.ensureDemoData();
+    
+    
+    @PostConstruct
+    void init() {
         // Add some event listners, e.g. to hook filter input to actually 
         // filter the displayed entries
         filter.addTextChangeListener(e -> {
@@ -117,7 +118,6 @@ public class MainView extends CssLayout implements View {
         form.setSavedHandler(this::entrySaved);
         form.setResetHandler(this::entryEditCanceled);
 
-        removeAllComponents();
         addComponents(
                 new MVerticalLayout(
                         new Header("PhoneBook"),
@@ -129,6 +129,11 @@ public class MainView extends CssLayout implements View {
         // List all entries and select first entry in the list
         listEntries();
         entryList.setValue(entryList.firstItemId());
+    }
+
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+
     }
 
 }

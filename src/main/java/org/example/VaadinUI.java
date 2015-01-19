@@ -3,6 +3,12 @@ package org.example;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.cdi.CDIUI;
+import com.vaadin.server.Extension;
+import com.vaadin.server.Page;
+import com.vaadin.server.Responsive;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import org.example.backend.PhoneBookService;
 import org.vaadin.cdiviewmenu.ViewMenuUI;
 
 /**
@@ -20,5 +26,29 @@ import org.vaadin.cdiviewmenu.ViewMenuUI;
 @Theme("valo")
 @Title("Phonebook")
 public class VaadinUI extends ViewMenuUI {
+
+    @Inject
+    PhoneBookService service;
+
+    @PostConstruct
+    void init() {
+        service.ensureDemoData();
+    }
+
+    @Override
+    public void beforeClientResponse(boolean initial) {
+        if (initial && Page.getCurrent().getWebBrowser().getBrowserApplication().
+                contains("Firefox")) {
+            // Responsive, FF, cross site is currently broken :-(
+            Extension r = null;
+            for (Extension ext : getExtensions()) {
+                if (ext instanceof Responsive) {
+                    r = ext;
+                }
+            }
+            removeExtension(r);
+        }
+        super.beforeClientResponse(initial);
+    }
 
 }

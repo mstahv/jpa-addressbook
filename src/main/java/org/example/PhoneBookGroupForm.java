@@ -21,10 +21,6 @@ public class PhoneBookGroupForm extends AbstractForm<PhoneBookGroup> {
 
     TextField name = new MTextField("Name");
 
-    public PhoneBookGroupForm() {
-        setEagerValidation(true);
-    }
-
     @Override
     protected Component createContent() {
         return new MVerticalLayout(
