@@ -3,6 +3,7 @@
   <persistence-unit name="customerdb" transaction-type="JTA">
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+      <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
       <property name = "hibernate.show_sql" value = "true" />
       <property name="eclipselink.logging.level" value="FINE"/>
       <property name="openjpa.Log" value="DefaultLevel=WARN, Runtime=INFO, Tool=INFO, SQL=TRACE"/>
