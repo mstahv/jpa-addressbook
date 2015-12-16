@@ -9,8 +9,7 @@ own domain model. It also demonstrates a very simple add-on usage with Vaadin
 (the iconic "switch" add-on).
 
 To get this running execute "mvn wildfly:run" to launch this locally on Wildfly 
-server. Or deploy to a Java EE 6+ server that support Java 8 
-properly, like Wildfly, Glassfish or latest TomEE. With Liberty you'll need to 
+server. Or deploy to a Java EE 7+ server like Wildfly or Glassfish. With Liberty you'll need to 
 present a data source (other modern servers proved "development datasource" when 
 no jta-datasource is present in persistence.xml). 
 
