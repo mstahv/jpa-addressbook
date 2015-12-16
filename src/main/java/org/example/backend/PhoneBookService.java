@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Subgraph;
+import org.vaadin.viritin.LazyList;
 
 /**
  * EJB to hide JPA related stuff from the UI layer.
@@ -40,7 +40,8 @@ public class PhoneBookService {
         if (filter == null) {
             return entryRepo.findAll();
         }
-        return entryRepo.findByNameLikeIgnoreCase("%" + filter + "%");
+        return entryRepo.findByNameLikeIgnoreCase("%" + filter + "%").
+                getResultList();
     }
 
     public List<PhoneBookGroup> getGroups(String filter) {
@@ -74,7 +75,6 @@ public class PhoneBookService {
         //    in repository method.
         //    em.createQuery("select e from PhoneBookEntry e LEFT JOIN FETCH e.groups where e.id = :id", PhoneBookEntry.class);
         //    ...
-        
         // 2) use EntityGraph's introduced in JPA 2.1, here constructed dynamically
         //    and passed via QueryResult object from DeltaSpike Data. You can 
         //    also use entity graphs with @Query annotation in repositories or
@@ -88,7 +88,7 @@ public class PhoneBookService {
 
         // 3) ..or use the infamous size() hack that all of us actually do :-)
         entry.getAddresses().size();
-        
+
         return entry;
     }
 
@@ -122,6 +122,32 @@ public class PhoneBookService {
                 em.flush();
             }
         }
+    }
+
+    /**
+     * Finds a set of entries from database with given filter, starting from
+     * given row. The "page size" (aka max results limit passed for the query)
+     * is 45.
+     *
+     * @param filter
+     * @param firstRow
+     * @return
+     */
+    public List<PhoneBookEntry> getEntriesPaged(String filter, int firstRow) {
+        return entryRepo.findByNameLikeIgnoreCase("%" + filter + "%")
+                .firstResult(firstRow).maxResults(LazyList.DEFAULT_PAGE_SIZE)
+                .getResultList();
+    }
+
+    /**
+     * Finds a number of entries from database with given filter.
+     *
+     * @param filter
+     * @return
+     */
+    public int countEntries(String filter) {
+        return (int) entryRepo.findByNameLikeIgnoreCase("%" + filter + "%").
+                count();
     }
 
 }

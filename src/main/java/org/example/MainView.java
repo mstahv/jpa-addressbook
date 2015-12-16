@@ -18,7 +18,6 @@ import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTable;
 import org.vaadin.viritin.fields.MTextField;
 import org.vaadin.viritin.fields.MValueChangeEvent;
-import org.vaadin.viritin.label.Header;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
@@ -58,6 +57,7 @@ public class MainView extends CssLayout implements View {
 
     private void listEntries(String filter) {
         entryList.setBeans(service.getEntries(filter));
+        //lazyListEntries(filter);
     }
 
     private void listEntries() {
@@ -135,6 +135,18 @@ public class MainView extends CssLayout implements View {
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
+    }
+
+    /**
+     * A simple example how to make lazy loading change all the way to the
+     * database and save JVM memory with large databases (and/or lots of users).
+     * Uses Viritin add-on and its MTable to do lazy binding.
+     */
+    private void lazyListEntries(String filter) {
+        entryList.lazyLoadFrom(
+                firstRow -> service.getEntriesPaged(filter, firstRow), 
+                () -> service.countEntries(filter)
+        );
     }
 
 }
