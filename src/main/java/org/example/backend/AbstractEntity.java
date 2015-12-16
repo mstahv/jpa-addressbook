@@ -17,16 +17,16 @@ public abstract class AbstractEntity implements Serializable, Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public Integer id;
+    public Long id;
     
     @Version
     public int version;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    protected void setId(Integer id) {
+    protected void setId(Long id) {
         this.id = id;
     }
 

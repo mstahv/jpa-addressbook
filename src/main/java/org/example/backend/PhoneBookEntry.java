@@ -2,10 +2,11 @@ package org.example.backend;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -45,7 +46,7 @@ public class PhoneBookEntry extends AbstractEntity {
     private List<PhoneBookAddress> addresses = new ArrayList<>();
 
     @ManyToMany
-    private List<PhoneBookGroup> groups = new ArrayList<>();
+    private Set<PhoneBookGroup> groups = new HashSet<>();
 
     public PhoneBookEntry(String name, String number, String email) {
         this.name = name;
@@ -97,11 +98,11 @@ public class PhoneBookEntry extends AbstractEntity {
         this.birthDate = birthDate;
     }
 
-    public List<PhoneBookGroup> getGroups() {
+    public Set<PhoneBookGroup> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<PhoneBookGroup> groups) {
+    public void setGroups(Set<PhoneBookGroup> groups) {
         this.groups = groups;
     }
 

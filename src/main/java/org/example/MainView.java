@@ -122,7 +122,6 @@ public class MainView extends CssLayout implements View {
 
         addComponents(
                 new MVerticalLayout(
-                        new Header("PhoneBook"),
                         new MHorizontalLayout(addNew, delete, filter),
                         new MHorizontalLayout(entryList, form)
                 )
