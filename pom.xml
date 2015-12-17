@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.vaadin</groupId>
             <artifactId>vaadin-java-ee-essentials</artifactId>
-            <version>1.14-SNAPSHOT</version>
+            <version>1.14</version>
             <type>pom</type>
             <exclusions>
                 <!-- Using add-ons in this example via CDN, 
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.vaadin</groupId>
             <artifactId>viritin</artifactId>
-            <version>1.38</version>
+            <version>1.39</version>
         </dependency>
     </dependencies>
     
@@ -78,11 +78,6 @@
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>1.0.2.Final</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.tomee.maven</groupId>
-                <artifactId>tomee-maven-plugin</artifactId>
-                <version>7.0.0-M1</version>
             </plugin>
             <plugin>
                 <groupId>com.vaadin.wscdn</groupId>
