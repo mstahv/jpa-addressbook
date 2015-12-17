@@ -85,7 +85,7 @@ public class MainView extends CssLayout implements View {
             boolean persisted = entry.getId() != null;
             if (persisted) {
                 // reattach (in case Hibernate is in use)
-                entry = service.refreshEntry(entry);
+                entry = service.loadFully(entry);
             }
             delete.setEnabled(persisted);
             form.setEntity(entry);

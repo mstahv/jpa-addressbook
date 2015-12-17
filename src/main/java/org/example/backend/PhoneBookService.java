@@ -67,7 +67,7 @@ public class PhoneBookService {
                 PhoneBookGroup.class).getResultList();
     }
 
-    public PhoneBookEntry refreshEntry(PhoneBookEntry entry) {
+    public PhoneBookEntry loadFully(PhoneBookEntry entry) {
         // To get lazy loaded fields initialized, you have couple of options,
         // all with pros and cons, 3 of them presented here.
 
