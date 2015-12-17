@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.vaadin</groupId>
             <artifactId>viritin</artifactId>
-            <version>1.39-SNAPSHOT</version>
+            <version>1.38</version>
         </dependency>
     </dependencies>
     
