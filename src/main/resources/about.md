@@ -10,3 +10,22 @@ own domain model. It also demonstrates a very simple add-on usage with Vaadin
 
 The source code for this example is available 
 [from github](https://github.com/mstahv/jpa-addressbook).
+
+## Views
+Currently, four different views are avaiable.
+
+### Main
+
+Main view for *viewing* phone entries and *adding* new entries.
+
+### Groups
+
+Management of group to whom phone entries can be assigned.
+
+### CSVImport
+View that allows for importing phone entries from a CSV file 
+An example CSV file is given at [/phonebook_example_entries.csv](/phonebook_example_entries.csv)
+
+### About
+This about dialogue.
+
