@@ -6,136 +6,158 @@ import com.vaadin.data.Container;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Grid;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.*;
 import org.example.backend.PhoneBookEntry;
 import org.example.backend.PhoneBookService;
-import org.example.csv.CSVUtil;
+import org.example.csv.CSVReadUtil;
+import org.example.csv.FileBasedUploadReceptor;
 import org.vaadin.cdiviewmenu.ViewMenuItem;
+import org.vaadin.viritin.label.Header;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 @UIScoped
 @CDIView("csv_imports")
 @ViewMenuItem(order = 2)
-public class CSVImportView extends VerticalLayout implements View {
+public class CSVImportView extends MVerticalLayout implements View {
 
     @Inject
     PhoneBookService service;
     
     Upload upload = new Upload();
-    
-    Grid grid = new Grid();
+    Grid grid;
+    Button cancelButton;
     Button saveButton;
-
-    static class UploadReceptor implements Upload.Receiver, Upload.SucceededListener {
-
-        private File tempFile;
-        
-        private Consumer<Reader> reader;
-        
-        public UploadReceptor( Consumer<Reader> reader) {
-            this.reader = reader;
-            
-            try {
-                tempFile = File.createTempFile("temp", ".csv");
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Can't create temporary file.");
-            }
-      }
-
-        @Override
-        public OutputStream receiveUpload(String s, String s1) {
-            try {
-                return new FileOutputStream(tempFile);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Temporary file not found.");
-            }
-        }
-
-        @Override
-        public void uploadSucceeded(Upload.SucceededEvent event) {
-            try {
-                System.out.println("Got file '" + event.getFilename() + 
-                        "' and mimetype '" + event.getMIMEType() + "'.");
-                FileReader fileReader = new FileReader(tempFile);
-                reader.accept( fileReader );
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Problem with upload.");
-            }
-            
-        }
-    }
-    
-    
-    static class SaveableGrid extends VerticalLayout {
-        private Grid grid;
-        private Button cancelButton;
-        private Button saveButton;
-
-        public SaveableGrid() {
-            grid = new Grid();
-            saveButton = new Button("Save");
-            cancelButton = new Button("Cancel");
-        }
-    }
+    Header header;
     
     @PostConstruct
     void init() {
 
+        header = new Header("CSV Import");
+        
         /**
          * External handler, after upload was successful.
          */
         Consumer<Reader> consumeReader = reader -> {
             System.out.println(reader);
             try {
-                IndexedContainer csvContainer = CSVUtil.buildContainerFromCSV(reader);
+                IndexedContainer csvContainer = CSVReadUtil.buildContainerFromCSV(reader);
+                // this is intentional, as attaching new datasource to existing grid seems cause problems in this Vaadin version
+                grid = new Grid();
+                grid.setWidth(100, Unit.PERCENTAGE);
                 grid.setContainerDataSource(csvContainer);
-                grid.setVisible(true);
-                saveButton.setVisible(true);
+                displayUploadedData();
+                
             } catch (IOException e) {
                 e.printStackTrace();
             }
         };
 
-        UploadReceptor uploadReceptor = new UploadReceptor(consumeReader);
-        upload.setReceiver( uploadReceptor );
-        upload.setCaption("Upload CSV");
-        upload.addSucceededListener(uploadReceptor);
+        FileBasedUploadReceptor fileBasedUploadReceptor = new FileBasedUploadReceptor(consumeReader);
+        upload.setReceiver(fileBasedUploadReceptor);
+        upload.addSucceededListener(fileBasedUploadReceptor);
         
         saveButton = new Button("Save");
         saveButton.addClickListener(clickEvent -> {
-            List<PhoneBookEntry> entries = createEntries(grid.getContainerDataSource());
-            saveEntries( entries );
+            Container.Indexed container = grid.getContainerDataSource();
+            if ( checkEntries(grid.getContainerDataSource()) ) {
+                List<PhoneBookEntry> entries = createEntries(container);
+                saveEntries( entries );
+                Notification.show( entries.size() + " entries have been imported.");
+                displayUpload();
+            } else {
+                Notification.show("Can not save entries. Schema ( column names ) of CSV not correct.", Notification.Type.WARNING_MESSAGE);
+            }
         });
-
-        grid.setVisible(false);
-        saveButton.setVisible(false);
         
+        cancelButton = new Button("Cancel");
+        cancelButton.addClickListener(clickEvent -> {
+                    displayUpload();
+                }
+        );
+
+        displayUpload();
+    }
+    
+    // ===== View related methods
+    public void displayUpload() {
+        removeAllComponents();
+        
+        Label label = new Label("Please upload your CSV, that contains columns 'name', 'number' and 'email'");
+        
+        addComponent(header);
+        addComponent(label);
         addComponent(upload);
+    }
+    
+    public void displayUploadedData() {
+        removeAllComponents();
+
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.addComponent(cancelButton);
+        hl.addComponent(saveButton);
+        
+        HorizontalLayout bottom = new HorizontalLayout();
+        bottom.setWidth(100, Unit.PERCENTAGE);
+        bottom.addComponent(hl);
+        bottom.setComponentAlignment(hl, Alignment.MIDDLE_RIGHT);
+
+        addComponent(header);
         addComponent(grid);
-        addComponent(saveButton);
+        setExpandRatio(grid, 1);
+        addComponent(bottom);
     }
 
-    private List<PhoneBookEntry> createEntries(Container.Indexed container ) {
-        String NAME = "name";
-        String NUMBER = "number";
-        String EMAIL = "email";
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        // nothing to do on enter
+    }
+    
+    // ===== Entry related methods
+    // TODO: To be moved to separate class, but left here to keep everything "close together".
+
+    private String NAME = "name";
+    private String NUMBER = "number";
+    private String EMAIL = "email";
+
+    /**
+     * Check if all property ids NAME, NUMBER and EMAIL are present in given container (as read from CSV).
+     * @param containerDataSource
+     * @return true if so
+     */
+    private boolean checkEntries(Container.Indexed containerDataSource) {
+        Collection<String> pids = (Collection<String>)containerDataSource.getContainerPropertyIds();
+
+        Set<String> actualSchema = new HashSet<>(pids);
+        Set<String> expectedSchema = new HashSet<>(Arrays.asList(NAME, NUMBER, EMAIL));
         
+        Set<String> intersect = (new HashSet<>(actualSchema));
+        intersect.retainAll(expectedSchema);
+        
+        if (actualSchema.size() == 3) {
+            return true; // everything is fine
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Create entries based on container content.
+     * 
+     * @param container use for construction of {@link PhoneBookEntry}s.
+     * @return list of entries
+     */
+    private List<PhoneBookEntry> createEntries(Container.Indexed container ) {
+
         List<PhoneBookEntry> entries = new ArrayList<>();
         int n = container.size();
         
-        // TODO: Improve hard-wired error-prone mapping
+        // TODO: Introduce real mapping functionality
         for ( Object itemId : container.getItemIds() ) {
             String name = (String) container.getContainerProperty(itemId, NAME).getValue();
             String number = (String) container.getContainerProperty(itemId, NUMBER).getValue();
@@ -145,16 +167,15 @@ public class CSVImportView extends VerticalLayout implements View {
         }
         return entries;
     }
-    
-    private void saveEntries( List<PhoneBookEntry> entries ) {
-        System.out.println("Before saving entries.");
+
+    /**
+     * Persist given {@link PhoneBookEntry}s. 
+     * @param entries are the entries to persist.
+     */
+    private int saveEntries( List<PhoneBookEntry> entries ) {
         for (PhoneBookEntry entry : entries) {
             service.save(entry);
         }
-        System.out.println("After saving entries.");
-    }
-
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        return entries.size();
     }
 }

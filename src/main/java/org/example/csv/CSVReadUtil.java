@@ -11,7 +11,7 @@ import com.vaadin.ui.Window;
 import java.io.*;
 
 
-public class CSVUtil {
+public class CSVReadUtil {
 
     /**
      * Uses http://opencsv.sourceforge.net/ to read the entire contents of a CSV
