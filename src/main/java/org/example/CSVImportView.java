@@ -51,7 +51,11 @@ public class CSVImportView extends MVerticalLayout implements View {
                 grid = new Grid();
                 grid.setWidth(100, Unit.PERCENTAGE);
                 grid.setContainerDataSource(csvContainer);
-                displayUploadedData();
+                boolean columnNamesValid = checkEntries(grid.getContainerDataSource());
+                if ( !columnNamesValid ) {
+                    Notification.show("Save is not possible. Schema ( column names ) of CSV not correct.", Notification.Type.WARNING_MESSAGE);    
+                }
+                displayUploadedData( columnNamesValid );
                 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -65,14 +69,10 @@ public class CSVImportView extends MVerticalLayout implements View {
         saveButton = new Button("Save");
         saveButton.addClickListener(clickEvent -> {
             Container.Indexed container = grid.getContainerDataSource();
-            if ( checkEntries(grid.getContainerDataSource()) ) {
-                List<PhoneBookEntry> entries = createEntries(container);
-                saveEntries( entries );
-                Notification.show( entries.size() + " entries have been imported.");
-                displayUpload();
-            } else {
-                Notification.show("Can not save entries. Schema ( column names ) of CSV not correct.", Notification.Type.WARNING_MESSAGE);
-            }
+            List<PhoneBookEntry> entries = createEntries(container);
+            saveEntries( entries );
+            Notification.show( entries.size() + " entries have been imported.");
+            displayUpload();
         });
         
         cancelButton = new Button("Cancel");
@@ -83,8 +83,10 @@ public class CSVImportView extends MVerticalLayout implements View {
 
         displayUpload();
     }
-    
+
+    // ==========================================================
     // ===== View related methods
+    // ==========================================================
     public void displayUpload() {
         removeAllComponents();
         
@@ -95,8 +97,10 @@ public class CSVImportView extends MVerticalLayout implements View {
         addComponent(upload);
     }
     
-    public void displayUploadedData() {
+    public void displayUploadedData( boolean activateSave ) {
         removeAllComponents();
+        
+        saveButton.setEnabled( activateSave );
 
         HorizontalLayout hl = new HorizontalLayout();
         hl.addComponent(cancelButton);
@@ -117,8 +121,10 @@ public class CSVImportView extends MVerticalLayout implements View {
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         // nothing to do on enter
     }
-    
+
+    // ==========================================================
     // ===== Entry related methods
+    // ==========================================================
     // TODO: To be moved to separate class, but left here to keep everything "close together".
 
     private String NAME = "name";
