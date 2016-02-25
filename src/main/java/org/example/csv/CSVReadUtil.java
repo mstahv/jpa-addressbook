@@ -107,7 +107,7 @@ public class CSVReadUtil {
         public static String turnIntoFixedSize(String input, int s) {
             int n = input.length();
 
-            return (n <= s) ? input + createNSpaces( n-s ) : input.substring(0, n - 1) + "…";
+            return (n <= s) ? input + createNSpaces( n-s ) : input.substring(0, s - 1) + "…";
         }
 
         public static String createNSpaces( int n ) {
