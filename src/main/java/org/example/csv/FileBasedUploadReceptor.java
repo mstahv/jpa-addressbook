@@ -12,14 +12,38 @@ public class FileBasedUploadReceptor implements Upload.Receiver, Upload.Succeede
 
     private File tempFile;
 
-    private Consumer<Reader> readerConsumer;
+    private Consumer<FileAndInfo> fileConsumer;
+
+    public static class FileAndInfo {
+        private File file;
+        private String filename;
+        private String mimetype;
+
+        public FileAndInfo(File file, String filename, String mimetype) {
+            this.file = file;
+            this.filename = filename;
+            this.mimetype = mimetype;
+        }
+
+        public File getFile() {
+            return file;
+        }
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public String getMimetype() {
+            return mimetype;
+        }
+    }
 
     /**
      * Constructor.
-     * @param readerConsumer is a (consuming) function of type ( Reader -> () ) that is called, when upload was successful. 
+     * @param fileConsumer is a (consuming) function of type ( Reader -> () ) that is called, when upload was successful.
      */
-    public FileBasedUploadReceptor(Consumer<Reader> readerConsumer) {
-        this.readerConsumer = readerConsumer;
+    public FileBasedUploadReceptor(Consumer<FileAndInfo> fileConsumer) {
+        this.fileConsumer = fileConsumer;
 
         try {
             tempFile = File.createTempFile("temp", ".csv");
@@ -41,14 +65,8 @@ public class FileBasedUploadReceptor implements Upload.Receiver, Upload.Succeede
 
     @Override
     public void uploadSucceeded(Upload.SucceededEvent event) {
-        try {
-            System.out.println("Got file '" + event.getFilename() +
+        System.out.println("Got file '" + event.getFilename() +
                     "' and mimetype '" + event.getMIMEType() + "'.");
-            FileReader fileReader = new FileReader(tempFile);
-            readerConsumer.accept( fileReader );
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Problem with upload.");
-        }
+        fileConsumer.accept( new FileAndInfo(tempFile, event.getFilename(), event.getMIMEType()) );
     }
 }

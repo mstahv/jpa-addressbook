@@ -43,10 +43,10 @@ public class CSVImportView extends MVerticalLayout implements View {
         /**
          * External handler, after upload was successful.
          */
-        Consumer<Reader> consumeReader = reader -> {
+        Consumer<FileBasedUploadReceptor.FileAndInfo> consumeReader = reader -> {
             System.out.println(reader);
             try {
-                IndexedContainer csvContainer = CSVReadUtil.buildContainerFromCSV(reader);
+                IndexedContainer csvContainer = CSVReadUtil.buildContainerFromCSV(new FileReader(reader.getFile()));
                 // this is intentional, as attaching new datasource to existing grid seems cause problems in this Vaadin version
                 grid = new Grid();
                 grid.setWidth(100, Unit.PERCENTAGE);
@@ -65,7 +65,9 @@ public class CSVImportView extends MVerticalLayout implements View {
         FileBasedUploadReceptor fileBasedUploadReceptor = new FileBasedUploadReceptor(consumeReader);
         upload.setReceiver(fileBasedUploadReceptor);
         upload.addSucceededListener(fileBasedUploadReceptor);
-        
+        upload.setImmediate(true);
+        upload.setButtonCaption("Upload CSV.");
+
         saveButton = new Button("Save");
         saveButton.addClickListener(clickEvent -> {
             Container.Indexed container = grid.getContainerDataSource();
