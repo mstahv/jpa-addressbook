@@ -10,7 +10,7 @@ import com.vaadin.ui.*;
 import org.example.backend.PhoneBookEntry;
 import org.example.backend.PhoneBookService;
 import org.example.csv.CSVReadUtil;
-import org.example.csv.FileBasedUploadReceptor;
+import org.example.ui.upload.FileBasedUploadReceptor;
 import org.vaadin.cdiviewmenu.ViewMenuItem;
 import org.vaadin.viritin.label.Header;
 import org.vaadin.viritin.layouts.MVerticalLayout;

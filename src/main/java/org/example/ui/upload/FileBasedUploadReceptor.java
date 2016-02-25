@@ -1,4 +1,4 @@
-package org.example.csv;
+package org.example.ui.upload;
 
 import com.vaadin.ui.Upload;
 
