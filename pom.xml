@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.vaadin</groupId>
             <artifactId>vaadin-java-ee-essentials</artifactId>
-            <version>1.14</version>
+            <version>1.15</version>
             <type>pom</type>
             <exclusions>
                 <!-- Using add-ons in this example via CDN, 
@@ -52,7 +52,16 @@
                     <groupId>com.vaadin</groupId>
                     <artifactId>vaadin-client-compiled</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.peimari</groupId>
+                    <artifactId>dawn</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-themes</artifactId>
+            <version>7.7.4</version>
         </dependency>
         <dependency>
             <groupId>javax</groupId> 
@@ -67,7 +76,7 @@
         <dependency>
             <groupId>org.vaadin</groupId>
             <artifactId>viritin</artifactId>
-            <version>1.39</version>
+            <version>1.59</version>
         </dependency>
     </dependencies>
     
@@ -80,16 +89,20 @@
                 <version>1.0.2.Final</version>
             </plugin>
             <plugin>
-                <groupId>com.vaadin.wscdn</groupId>
-                <artifactId>wscdn-maven-plugin</artifactId>
-                <version>0.0.2</version>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>7.7.4</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>generate</goal>
+                            <goal>update-widgetset</goal>
+                            <goal>compile</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <widgetsetMode>cdn</widgetsetMode>
+                </configuration>
             </plugin>
         </plugins>
     </build>
