@@ -12,10 +12,17 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <deltaspike.version>1.5.2</deltaspike.version>
+        <deltaspike.version>1.8.0</deltaspike.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>javax</groupId> 
+            <artifactId>javaee-web-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Use the latest and greatest deltaspike -->
         <dependency>
             <groupId>org.apache.deltaspike.core</groupId>
             <artifactId>deltaspike-core-api</artifactId>
@@ -41,44 +48,44 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.vaadin</groupId>
-            <artifactId>vaadin-java-ee-essentials</artifactId>
-            <version>1.15</version>
-            <type>pom</type>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-cdi</artifactId>
             <exclusions>
-                <!-- Using add-ons in this example via CDN, 
-                exclude the obsolete default widgetset  -->
+                <!-- If you want to have custom them, you might want to have this,
+                but my recommendation is to do SASS compilation at build time. -->
                 <exclusion>
                     <groupId>com.vaadin</groupId>
-                    <artifactId>vaadin-client-compiled</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.peimari</groupId>
-                    <artifactId>dawn</artifactId>
+                    <artifactId>vaadin-sass-compiler</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-themes</artifactId>
-            <version>7.7.4</version>
         </dependency>
         <dependency>
-            <groupId>javax</groupId> 
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>        
+            <groupId>org.vaadin</groupId>
+            <artifactId>cdi-helpers</artifactId>
+            <version>2.2</version>
         </dependency>
         <dependency>
             <groupId>org.vaadin.teemu</groupId>
             <artifactId>switch</artifactId>
-            <version>2.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.vaadin</groupId>
-            <artifactId>viritin</artifactId>
-            <version>1.59</version>
+            <version>3.0.0</version>
         </dependency>
     </dependencies>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>8.1.6</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     
     <build>
         <plugins>
@@ -88,10 +95,12 @@
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>1.0.2.Final</version>
             </plugin>
+            <!-- This plugin detects all client side extensions & packages a new
+                 optimized version of the client side engine aka widgetset. -->
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
-                <version>7.7.4</version>
+                <version>8.1.6</version>
                 <executions>
                     <execution>
                         <goals>
@@ -112,23 +121,6 @@
             <id>vaadin-addons</id>
             <url>http://maven.vaadin.com/vaadin-addons</url>
         </repository>
-        <repository>
-            <id>viritin</id>
-            <url>http://virit.in/maven2</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
     </repositories>
     
-    <pluginRepositories>
-        <pluginRepository>
-            <id>viritin</id>
-            <url>http://virit.in/maven2</url>
-        </pluginRepository>
-    </pluginRepositories>
-
 </project>

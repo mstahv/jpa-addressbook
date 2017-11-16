@@ -2,6 +2,7 @@ package org.example;
 
 import com.vaadin.cdi.CDIView;
 import com.vaadin.cdi.UIScoped;
+import com.vaadin.data.HasValue.ValueChangeEvent;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -14,9 +15,8 @@ import javax.inject.Inject;
 import org.example.backend.PhoneBookGroup;
 import org.example.backend.PhoneBookService;
 import org.vaadin.viritin.button.MButton;
-import org.vaadin.viritin.fields.MTable;
 import org.vaadin.viritin.fields.MTextField;
-import org.vaadin.viritin.fields.MValueChangeEvent;
+import org.vaadin.viritin.grid.MGrid;
 import org.vaadin.viritin.label.Header;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
@@ -32,7 +32,7 @@ public class GroupsView extends CssLayout implements View {
     PhoneBookGroupForm form;
 
     // Instantiate and configure a Table to list PhoneBookEntries
-    MTable<PhoneBookGroup> entryList = new MTable<>(PhoneBookGroup.class)
+    MGrid<PhoneBookGroup> entryList = new MGrid<>(PhoneBookGroup.class)
             .withHeight("450px")
             .withFullWidth()
             .withProperties("name")
@@ -44,18 +44,18 @@ public class GroupsView extends CssLayout implements View {
     TextField filter = new MTextField().withInputPrompt("filter...");
 
     private void addNew(Button.ClickEvent e) {
-        entryList.setValue(null);
+        entryList.asSingleSelect().setValue(null);
         editEntry(new PhoneBookGroup());
     }
 
     private void deleteSelected(Button.ClickEvent e) {
-        service.delete(entryList.getValue());
+        service.delete(entryList.asSingleSelect().getValue());
         listEntries();
-        entryList.setValue(null);
+        entryList.asSingleSelect().setValue(null);
     }
 
     private void listEntries(String filter) {
-        entryList.setBeans(service.getGroups(filter));
+        entryList.setItems(service.getGroups(filter));
     }
 
     private void listEntries() {
@@ -63,10 +63,10 @@ public class GroupsView extends CssLayout implements View {
     }
 
     public void entryEditCanceled(PhoneBookGroup entry) {
-        editEntry(entryList.getValue());
+        editEntry(entryList.asSingleSelect().getValue());
     }
 
-    public void entrySelected(MValueChangeEvent<PhoneBookGroup> event) {
+    public void entrySelected(ValueChangeEvent<PhoneBookGroup> event) {
         editEntry(event.getValue());
     }
 
@@ -96,7 +96,7 @@ public class GroupsView extends CssLayout implements View {
                     getLocalizedMessage(), Notification.Type.WARNING_MESSAGE);
         }
         // deselect the entity
-        entryList.setValue(null);
+        entryList.asSingleSelect().setValue(null);
         // refresh list
         listEntries();
     }
@@ -105,10 +105,10 @@ public class GroupsView extends CssLayout implements View {
     void init() {
         // Add some event listners, e.g. to hook filter input to actually 
         // filter the displayed entries
-        filter.addTextChangeListener(e -> {
-            listEntries(e.getText());
+        filter.addValueChangeListener(e -> {
+            listEntries(e.getValue());
         });
-        entryList.addMValueChangeListener(this::entrySelected);
+        entryList.asSingleSelect().addValueChangeListener(this::entrySelected);
         form.setSavedHandler(this::entrySaved);
         form.setResetHandler(this::entryEditCanceled);
 
@@ -122,7 +122,7 @@ public class GroupsView extends CssLayout implements View {
 
         // List all entries and select first entry in the list
         listEntries();
-        entryList.setValue(entryList.firstItemId());        
+        entryList.select(service.getGroups().get(0));
     }
 
     @Override

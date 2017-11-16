@@ -1,5 +1,7 @@
 package org.example.backend;
 
+import com.vaadin.data.provider.QuerySortOrder;
+import com.vaadin.shared.data.sort.SortDirection;
 import java.util.List;
 import java.util.Random;
 import javax.ejb.Stateless;
@@ -7,7 +9,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.vaadin.viritin.LazyList;
+import org.apache.deltaspike.data.api.QueryResult;
 
 /**
  * EJB to hide JPA related stuff from the UI layer.
@@ -62,11 +64,17 @@ public class PhoneBookService {
         em.remove(value);
     }
 
-    public List getGroups() {
+    public List<PhoneBookGroup> getGroups() {
         return em.createQuery("SELECT e from PhoneBookGroup e",
                 PhoneBookGroup.class).getResultList();
     }
 
+    /**
+     * Fetches an instance of given PhoneBookEntry with all lazy 
+     * loaded properties loaded.
+     * @param entry
+     * @return the fully loaded instance
+     */
     public PhoneBookEntry loadFully(PhoneBookEntry entry) {
         // To get lazy loaded fields initialized, you have couple of options,
         // all with pros and cons, 3 of them presented here.
@@ -129,13 +137,22 @@ public class PhoneBookService {
      * given row. The "page size" (aka max results limit passed for the query)
      * is 45.
      *
-     * @param filter
-     * @param firstRow
+     * @param filter the filters string
+     * @param firstRow the first row to be fetched
+     * @param maxresults maximum number of results
      * @return
      */
-    public List<PhoneBookEntry> getEntriesPaged(String filter, int firstRow) {
-        return entryRepo.findByNameLikeIgnoreCase("%" + filter + "%")
-                .firstResult(firstRow).maxResults(LazyList.DEFAULT_PAGE_SIZE)
+    public List<PhoneBookEntry> getEntriesPaged(String filter, int firstRow, int maxresults, List<QuerySortOrder> sortOrder) {
+        QueryResult<PhoneBookEntry> qr = entryRepo.findByNameLikeIgnoreCase("%" + filter + "%");
+        for (QuerySortOrder qso : sortOrder) {
+            if(qso.getDirection() == SortDirection.ASCENDING) {
+                qr = qr.orderAsc(qso.getSorted());
+            } else {
+                qr = qr.orderDesc(qso.getSorted());
+            }
+        }
+        return qr
+                .firstResult(firstRow).maxResults(maxresults)
                 .getResultList();
     }
 

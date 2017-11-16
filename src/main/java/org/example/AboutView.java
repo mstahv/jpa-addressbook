@@ -2,16 +2,16 @@
 package org.example;
 
 import com.vaadin.cdi.CDIView;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.FontAwesome;
 import javax.annotation.PostConstruct;
 import org.vaadin.cdiviewmenu.ViewMenuItem;
 import org.vaadin.viritin.label.RichText;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
 @CDIView
-@ViewMenuItem(icon = FontAwesome.LIFE_BOUY, order = ViewMenuItem.END)
+@ViewMenuItem(icon = VaadinIcons.LIFEBUOY, order = ViewMenuItem.END)
 public class AboutView extends MVerticalLayout implements View {
     
     @PostConstruct

@@ -1,7 +1,8 @@
 package org.example;
 
 import com.vaadin.cdi.CDIView;
-import com.vaadin.cdi.UIScoped;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -15,15 +16,13 @@ import org.example.backend.PhoneBookEntry;
 import org.example.backend.PhoneBookService;
 import org.vaadin.cdiviewmenu.ViewMenuItem;
 import org.vaadin.viritin.button.MButton;
-import org.vaadin.viritin.fields.MTable;
 import org.vaadin.viritin.fields.MTextField;
-import org.vaadin.viritin.fields.MValueChangeEvent;
+import org.vaadin.viritin.grid.MGrid;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
-@UIScoped
 @CDIView("")
-@ViewMenuItem(order = ViewMenuItem.BEGINNING, icon = FontAwesome.USER)
+@ViewMenuItem(order = ViewMenuItem.BEGINNING, icon = VaadinIcons.USER)
 public class MainView extends CssLayout implements View {
 
     @Inject
@@ -33,7 +32,7 @@ public class MainView extends CssLayout implements View {
     PhoneBookEntryForm form;
 
     // Instantiate and configure a Table to list PhoneBookEntries
-    MTable<PhoneBookEntry> entryList = new MTable<>(PhoneBookEntry.class)
+    MGrid<PhoneBookEntry> entryList = new MGrid<>(PhoneBookEntry.class)
             .withHeight("450px")
             .withFullWidth()
             .withProperties("name", "number")
@@ -45,19 +44,24 @@ public class MainView extends CssLayout implements View {
     TextField filter = new MTextField().withInputPrompt("filter...");
 
     private void addNew(Button.ClickEvent e) {
-        entryList.setValue(null);
+        entryList.deselectAll();
         editEntry(new PhoneBookEntry());
     }
 
     private void deleteSelected(Button.ClickEvent e) {
-        service.delete(entryList.getValue());
+        service.delete(entryList.asSingleSelect().getValue());
         listEntries();
-        entryList.setValue(null);
+        entryList.deselectAll();
     }
 
     private void listEntries(String filter) {
-        entryList.setBeans(service.getEntries(filter));
-        //lazyListEntries(filter);
+        // An easy, and for many cases just fine solution is to fetch
+        // everything from the db
+        // entryList.setItems(service.getEntries(filter));
+        
+        // but if you expect to have a laaarge set of results, 
+        // go with lazy binding
+        lazyListEntries(filter);
     }
 
     private void listEntries() {
@@ -65,10 +69,10 @@ public class MainView extends CssLayout implements View {
     }
 
     public void entryEditCanceled(PhoneBookEntry entry) {
-        editEntry(entryList.getValue());
+        editEntry(entryList.asSingleSelect().getValue());
     }
 
-    public void entrySelected(MValueChangeEvent<PhoneBookEntry> event) {
+    public void entrySelected(ValueChangeEvent<PhoneBookEntry> event) {
         editEntry(event.getValue());
     }
 
@@ -84,7 +88,7 @@ public class MainView extends CssLayout implements View {
         } else {
             boolean persisted = entry.getId() != null;
             if (persisted) {
-                // reattach (in case Hibernate is in use)
+                // reattach (in case Hibernate is in use, we need to load lazy loaded properties)
                 entry = service.loadFully(entry);
             }
             delete.setEnabled(persisted);
@@ -103,20 +107,20 @@ public class MainView extends CssLayout implements View {
                     getLocalizedMessage(), Notification.Type.WARNING_MESSAGE);
         }
         // deselect the entity
-        entryList.setValue(null);
+        entryList.deselectAll();
         // refresh list
         listEntries();
+
     }
-    
-    
+
     @PostConstruct
     void init() {
         // Add some event listners, e.g. to hook filter input to actually 
         // filter the displayed entries
-        filter.addTextChangeListener(e -> {
-            listEntries(e.getText());
+        filter.addValueChangeListener(e -> {
+            listEntries(e.getValue());
         });
-        entryList.addMValueChangeListener(this::entrySelected);
+        entryList.asSingleSelect().addValueChangeListener(this::entrySelected);
         form.setSavedHandler(this::entrySaved);
         form.setResetHandler(this::entryEditCanceled);
 
@@ -129,12 +133,11 @@ public class MainView extends CssLayout implements View {
 
         // List all entries and select first entry in the list
         listEntries();
-        entryList.setValue(entryList.firstItemId());
+        form.setVisible(false);
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-
     }
 
     /**
@@ -143,8 +146,10 @@ public class MainView extends CssLayout implements View {
      * Uses Viritin add-on and its MTable to do lazy binding.
      */
     private void lazyListEntries(String filter) {
-        entryList.lazyLoadFrom(
-                firstRow -> service.getEntriesPaged(filter, firstRow), 
+        entryList.setDataProvider(
+                (sortOrder, offset, limit) -> {
+                    return service.getEntriesPaged(filter, offset, limit, sortOrder).stream();
+                },
                 () -> service.countEntries(filter)
         );
     }

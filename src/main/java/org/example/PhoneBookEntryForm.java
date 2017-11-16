@@ -4,18 +4,21 @@ import org.example.backend.PhoneBookEntry;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.PopupDateField;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.MultiSelect;
+import java.util.List;
 import javax.inject.Inject;
 import org.example.backend.PhoneBookAddress;
+import org.example.backend.PhoneBookAddress.AddressType;
+import org.example.backend.PhoneBookGroup;
 import org.example.backend.PhoneBookService;
 import org.vaadin.teemu.switchui.Switch;
 import org.vaadin.viritin.fields.ElementCollectionField;
 import org.vaadin.viritin.fields.EnumSelect;
 import org.vaadin.viritin.fields.MTextField;
-import org.vaadin.viritin.fields.MultiSelectTable;
 import org.vaadin.viritin.form.AbstractForm;
+import org.vaadin.viritin.grid.MGrid;
 import org.vaadin.viritin.layouts.MFormLayout;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MMarginInfo;
@@ -33,27 +36,48 @@ public class PhoneBookEntryForm extends AbstractForm<PhoneBookEntry> {
     TextField name = new MTextField("Name");
     TextField number = new MTextField("Number");
     TextField email = new MTextField("Email");
-    DateField birthDate = new PopupDateField("Birth date");
+    DateField birthDate = new DateField("Birth date");
     Switch sendChristmasCard = new Switch("Send christmas card");
-    MultiSelectTable groups = new MultiSelectTable("Groups")
-            .withProperties("name").withColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
-
+    MGrid<PhoneBookGroup> groupsGrid = new MGrid<>(PhoneBookGroup.class)
+            .withFullHeight()
+            .withWidth("250px")
+            .withCaption("Groups");
+    
+    // The multiselect view of teh groupsGrid, used for namebased binding
+    private final MultiSelect<PhoneBookGroup> groups;
+    
     public static class AddressRow {
-        EnumSelect type = new EnumSelect().withWidth("6em");
-        TextField street = new MTextField().withInputPrompt("street");
-        TextField city = new MTextField().withInputPrompt("city").withWidth("6em");
-        TextField zip = new MTextField().withInputPrompt("zip").withWidth("4em");
+        EnumSelect<AddressType> type = (EnumSelect) new EnumSelect(AddressType.class).withWidth("6em");
+        TextField street = new MTextField().withPlaceholder("street");
+        TextField city = new MTextField().withPlaceholder("city").withWidth("6em");
+        TextField zip = new MTextField().withPlaceholder("zip").withWidth("4em");
     }
 
-    ElementCollectionField<PhoneBookAddress> addresses = new ElementCollectionField<>(
-            PhoneBookAddress.class, AddressRow.class).withCaption("Addressess");
+    ElementCollectionField<PhoneBookAddress,List<PhoneBookAddress>> addresses = new ElementCollectionField<PhoneBookAddress,List<PhoneBookAddress>>(
+            PhoneBookAddress.class, AddressRow.class);
 
     @Inject
     PhoneBookService service;
 
+    public PhoneBookEntryForm() {
+        super(PhoneBookEntry.class);
+        groupsGrid.setColumns("name");
+        groupsGrid.setHeaderVisible(false);
+        groupsGrid.setSelectionMode(Grid.SelectionMode.MULTI);
+        groups = groupsGrid.asMultiSelect();
+    }
+
+    @Override
+    public void setEntity(PhoneBookEntry entity) {
+        // populate dynamic fields here, so that they are updated
+        // also, in many real world cases, available option and other
+        // configuration in the form might depend on the entity state
+        groupsGrid.setItems(service.getGroups());
+        super.setEntity(entity);
+    }
+    
     @Override
     protected Component createContent() {
-        groups.setOptions(service.getGroups());
         return new MVerticalLayout(
                 getToolbar(),
                 new MHorizontalLayout(
@@ -64,7 +88,7 @@ public class PhoneBookEntryForm extends AbstractForm<PhoneBookEntry> {
                                 birthDate,
                                 sendChristmasCard
                         ).withMargin(false),
-                        groups.withFullHeight()
+                        groupsGrid
                 ),
                 addresses
         ).withMargin(new MMarginInfo(false, true));

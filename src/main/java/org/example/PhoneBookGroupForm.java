@@ -21,6 +21,10 @@ public class PhoneBookGroupForm extends AbstractForm<PhoneBookGroup> {
 
     TextField name = new MTextField("Name");
 
+    public PhoneBookGroupForm() {
+        super(PhoneBookGroup.class);
+    }
+
     @Override
     protected Component createContent() {
         return new MVerticalLayout(

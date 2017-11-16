@@ -1,7 +1,7 @@
 package org.example.backend;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class PhoneBookEntry extends AbstractEntity {
     private String email;
 
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date birthDate;
+    private LocalDate birthDate;
     
     private boolean sendChristmasCard = false;
     
@@ -90,11 +90,11 @@ public class PhoneBookEntry extends AbstractEntity {
         this.email = email;
     }
 
-    public Date getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 
