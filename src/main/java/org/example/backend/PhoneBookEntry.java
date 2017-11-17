@@ -37,7 +37,6 @@ public class PhoneBookEntry extends AbstractEntity {
     @Pattern(regexp = ".+@.+\\.[a-z]+", message = "Must be valid email")
     private String email;
 
-    @Temporal(javax.persistence.TemporalType.DATE)
     private LocalDate birthDate;
     
     private boolean sendChristmasCard = false;
