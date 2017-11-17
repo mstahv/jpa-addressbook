@@ -16,6 +16,8 @@ present a data source (other modern servers provide "development datasource" whe
 no jta-datasource is present in persistence.xml). 
 
 This is a suitable basis for small to medium sized apps. For larger applications,
-consider using MVP to structure your UI code. See e.g. [this example 
-application](https://github.com/peterl1084/cdiexample).
+consider using MVP or similar to structure your UI code. See e.g. [Vaadin Bakery app starter](https://vaadin.com/start/).
 
+### Older version
+
+The current version of the example uses Vaadin 8, the older Vaadin 7 compatible version is available in the [vaadin7](https://github.com/mstahv/jpa-addressbook/tree/vaadin7) branch.
