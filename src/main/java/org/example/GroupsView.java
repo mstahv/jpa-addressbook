@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.example.backend.PhoneBookGroup;
 import org.example.backend.PhoneBookService;
+import org.vaadin.cdiviewmenu.ViewMenuItem;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTextField;
 import org.vaadin.viritin.grid.MGrid;
@@ -23,6 +24,7 @@ import org.vaadin.viritin.layouts.MVerticalLayout;
 
 @UIScoped
 @CDIView("groups")
+@ViewMenuItem(order = 1)
 public class GroupsView extends CssLayout implements View {
 
     @Inject

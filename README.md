@@ -10,9 +10,25 @@ own domain model. It also demonstrates a very simple add-on usage with Vaadin
 
 If you are new to Maven and want to try this application, check out this [tiny Maven tutorial](https://vaadin.com/blog/-/blogs/the-maven-essentials-for-the-impatient-developer).
 
-To get this running execute "mvn wildfly:run" to launch this locally on Wildfly 
-server or deploy to a Java EE 7+ server like Wildfly or Glassfish. With Liberty you'll need to 
-present a data source (other modern servers provide "development datasource" when 
+## Run the example
+
+As this application is based on JEE it relies on a JEE capable application server. 
+The Maven project setup includes a Wildfly Maven application server for demonstration purposes.
+
+To run the project, you can use
+
+```
+mvn wildfly:run
+```
+to launch this locally on Wildfly server. Afterwards, the application is available
+in your local browser at
+
+[http://localhost:8080/jpa-addressbook-1.0-SNAPSHOT](http://localhost:8080/jpa-addressbook-1.0-SNAPSHOT)
+
+
+Alternatively, you can deploy to a Java EE 7+ server like Wildfly or Glassfish. 
+With Liberty you'll need to present a data source 
+(other modern servers provide "development datasource" when 
 no jta-datasource is present in persistence.xml). 
 
 This is a suitable basis for small to medium sized apps. For larger applications,
